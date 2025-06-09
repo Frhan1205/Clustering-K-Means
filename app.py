@@ -14,34 +14,53 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
+import matplotlib.dates as mdates
 
-st.title("Clustering Tren Harian COVID-19 di Indonesia")
+# Konfigurasi tampilan awal
+st.set_page_config(page_title="Analisis Klaster COVID-19", layout="wide")
+st.title("📊 Analisis Klaster Harian COVID-19 di Indonesia")
 
-uploaded_file = st.file_uploader("Upload file CSV dengan data COVID-19", type="csv")
+# Upload file
+uploaded_file = st.file_uploader("📎 Upload file CSV dengan data COVID-19", type="csv")
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
 
-    # Pilih kolom-kolom numerik untuk clustering (versi bahasa Indonesia)
-    data = df[['jumlah_positif', 'jumlah_meninggal', 'jumlah_sembuh', 'jumlah_dirawat']].dropna()
+    st.subheader("🧾 Pratinjau Data")
+    st.dataframe(df.head())
 
-    # Standarisasi data
-    scaler = StandardScaler()
-    data_scaled = scaler.fit_transform(data)
+    # Pilih kolom numerik
+    numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
 
-    # K-Means Clustering
-    kmeans = KMeans(n_clusters=3, random_state=42)
-    df.loc[data.index, 'Cluster'] = kmeans.fit_predict(data_scaled)
+    st.subheader("⚙️ Konfigurasi Klastering")
+    selected_cols = st.multiselect("Pilih Kolom untuk Clustering (min 2 kolom):", numeric_cols,
+                                   default=['jumlah_positif', 'jumlah_dirawat'] if 'jumlah_positif' in numeric_cols else numeric_cols[:2])
 
-    # Visualisasi hasil clustering
-    st.subheader("Visualisasi Klaster")
-    fig, ax = plt.subplots()
-    sns.scatterplot(data=df.loc[data.index], x='jumlah_positif', y='jumlah_dirawat', hue='Cluster', palette='Set1', ax=ax)
-    plt.xlabel("Jumlah Positif Harian")
-    plt.ylabel("Jumlah Dirawat Aktif")
-    plt.title("Visualisasi Klaster Berdasarkan Kasus Baru dan Kasus Aktif")
-    st.pyplot(fig)
+    n_clusters = st.slider("Jumlah Klaster (k)", min_value=2, max_value=10, value=3)
 
-    # Statistik ringkasan per klaster
-    st.subheader("Statistik Rata-rata Tiap Klaster")
-    st.dataframe(df.groupby('Cluster')[['jumlah_positif', 'jumlah_meninggal', 'jumlah_sembuh', 'jumlah_dirawat']].mean().round(2))
+    if len(selected_cols) >= 2:
+        # Standarisasi data
+        data_scaled = StandardScaler().fit_transform(df[selected_cols].dropna())
+        clustering_data = df[selected_cols].dropna().copy()
+
+        # Jalankan KMeans
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        labels = kmeans.fit_predict(data_scaled)
+
+        # Gabungkan kembali ke df asli
+        df.loc[clustering_data.index, 'Cluster'] = labels
+        df['Cluster'] = df['Cluster'].astype(int)
+
+        # Visualisasi scatter plot klaster
+        st.subheader("📍 Visualisasi Klaster (2D Scatterplot)")
+        fig1, ax1 = plt.subplots()
+        sns.scatterplot(data=df, x=selected_cols[0], y=selected_cols[1], hue='Cluster', palette='Set1', ax=ax1)
+        ax1.set_xlabel(selected_cols[0])
+        ax1.set_ylabel(selected_cols[1])
+        ax1.set_title("Visualisasi Klaster")
+        st.pyplot(fig1)
+
+        # Statistik ringkasan
+        st.subheader("📊 Statistik Rata-rata per Klaster")
+        st.dataframe(df.groupby('Cluster')[selecte]()
+
