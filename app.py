@@ -20,7 +20,7 @@ st.title("Clustering Tren Harian COVID-19")
 uploaded_file = st.file_uploader("Upload CSV file", type="csv")
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
-    data = df[['New Cases', 'New Deaths', 'New Recovered', 'Active Cases']].dropna()
+    data = df[['jumlah_positif', 'jumlah_meninggal', 'jumlah_sembuh', 'jumlah_dirawat']].dropna()
     scaler = StandardScaler()
     data_scaled = scaler.fit_transform(data)
 
