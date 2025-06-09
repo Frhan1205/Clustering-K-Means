@@ -15,22 +15,33 @@ from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-st.title("Clustering Tren Harian COVID-19")
+st.title("Clustering Tren Harian COVID-19 di Indonesia")
 
-uploaded_file = st.file_uploader("Upload CSV file", type="csv")
+uploaded_file = st.file_uploader("Upload file CSV dengan data COVID-19", type="csv")
+
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
+
+    # Pilih kolom-kolom numerik untuk clustering (versi bahasa Indonesia)
     data = df[['jumlah_positif', 'jumlah_meninggal', 'jumlah_sembuh', 'jumlah_dirawat']].dropna()
+
+    # Standarisasi data
     scaler = StandardScaler()
     data_scaled = scaler.fit_transform(data)
 
-    kmeans = KMeans(n_clusters=3)
-    df['Cluster'] = kmeans.fit_predict(data_scaled)
+    # K-Means Clustering
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    df.loc[data.index, 'Cluster'] = kmeans.fit_predict(data_scaled)
 
+    # Visualisasi hasil clustering
     st.subheader("Visualisasi Klaster")
     fig, ax = plt.subplots()
-    sns.scatterplot(data=df, x='New Cases', y='Active Cases', hue='Cluster', ax=ax)
+    sns.scatterplot(data=df.loc[data.index], x='jumlah_positif', y='jumlah_dirawat', hue='Cluster', palette='Set1', ax=ax)
+    plt.xlabel("Jumlah Positif Harian")
+    plt.ylabel("Jumlah Dirawat Aktif")
+    plt.title("Visualisasi Klaster Berdasarkan Kasus Baru dan Kasus Aktif")
     st.pyplot(fig)
 
-    st.subheader("Statistik Klaster")
-    st.dataframe(df.groupby('Cluster')[['New Cases', 'New Deaths', 'New Recovered', 'Active Cases']].mean().round(2))
+    # Statistik ringkasan per klaster
+    st.subheader("Statistik Rata-rata Tiap Klaster")
+    st.dataframe(df.groupby('Cluster')[['jumlah_positif', 'jumlah_meninggal', 'jumlah_sembuh', 'jumlah_dirawat']].mean().round(2))
