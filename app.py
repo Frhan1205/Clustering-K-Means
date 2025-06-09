@@ -62,20 +62,24 @@ if uploaded_file:
             try:
                 df['date'] = pd.to_datetime(df['date'])
                 st.subheader("📈 Tren Waktu Kasus Positif per Klaster")
-
+  
                 fig2, ax2 = plt.subplots(figsize=(10, 5))
                 for cluster in sorted(df['Cluster'].unique()):
                     df_cluster = df[df['Cluster'] == cluster].sort_values(by='date')
                     ax2.plot(df_cluster['date'], df_cluster[selected_cols[0]], label=f'Klaster {cluster}')
-
+                
                 ax2.set_xlabel("Tanggal")
                 ax2.set_ylabel(selected_cols[0])
                 ax2.set_title(f"Tren Harian {selected_cols[0]} per Klaster")
-                ax2.xaxis.set_major_locator(mdates.WeekdayLocator(interval=7))  # Setiap 7 hari (mingguan)
-                ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                
+                ax2.xaxis.set_major_locator(mdates.AutoDateLocator())
+                ax2.xaxis.set_major_formatter(mdates.ConciseDateFormatter(mdates.AutoDateLocator()))
+                ax2.xaxis.set_major_locator(MaxNLocator(nbins=6))  # Batas maksimal 6 tanggal muncul
+                
                 ax2.tick_params(axis='x', rotation=45)
                 ax2.legend(title="Klaster")
                 st.pyplot(fig2)
+
             except Exception as e:
                 st.warning(f"Kolom 'date' tidak bisa diubah ke format tanggal: {e}")
     else:
