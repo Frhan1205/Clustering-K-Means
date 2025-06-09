@@ -63,8 +63,8 @@ if uploaded_file:
             try:
                 df['date'] = pd.to_datetime(df['date'])
                 st.subheader("📈 Tren Waktu Kasus Positif per Klaster")
-  
-                fig2, ax2 = plt.subplots(figsize=(10, 5))
+                
+                fig2, ax2 = plt.subplots(figsize=(10, 4))
                 for cluster in sorted(df['Cluster'].unique()):
                     df_cluster = df[df['Cluster'] == cluster].sort_values(by='date')
                     ax2.plot(df_cluster['date'], df_cluster[selected_cols[0]], label=f'Klaster {cluster}')
@@ -73,9 +73,9 @@ if uploaded_file:
                 ax2.set_ylabel(selected_cols[0])
                 ax2.set_title(f"Tren Harian {selected_cols[0]} per Klaster")
                 
-                ax2 = plt.gca()
-                ax2.xaxis.set_major_locator(mdates.DayLocator(interval=7))  # 🟢 Tampilkan label setiap 7 hari
-                ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                # 🟢 Tampilkan label setiap 2 bulan
+                ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+                ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m'))
                 
                 ax2.tick_params(axis='x', rotation=45)
                 ax2.legend(title="Klaster")
