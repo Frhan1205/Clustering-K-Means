@@ -73,9 +73,9 @@ if uploaded_file:
                 ax2.set_ylabel(selected_cols[0])
                 ax2.set_title(f"Tren Harian {selected_cols[0]} per Klaster")
                 
-                ax2.xaxis.set_major_locator(mdates.AutoDateLocator())
-                ax2.xaxis.set_major_formatter(mdates.ConciseDateFormatter(mdates.AutoDateLocator()))
-                ax2.xaxis.set_major_locator(MaxNLocator(nbins=6))  # Batas maksimal 6 tanggal muncul
+                ax2 = plt.gca()
+                ax2.xaxis.set_major_locator(mdates.DayLocator(interval=7))  # 🟢 Tampilkan label setiap 7 hari
+                ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
                 
                 ax2.tick_params(axis='x', rotation=45)
                 ax2.legend(title="Klaster")
