@@ -71,7 +71,7 @@ if uploaded_file:
                 ax2.set_xlabel("Tanggal")
                 ax2.set_ylabel(selected_cols[0])
                 ax2.set_title(f"Tren Harian {selected_cols[0]} per Klaster")
-                ax2.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+                ax2.xaxis.set_major_locator(mdates.WeekdayLocator(interval=7))
                 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
                 ax2.tick_params(axis='x', rotation=45)
                 ax2.legend(title="Klaster")
