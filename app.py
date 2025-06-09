@@ -60,7 +60,58 @@ if uploaded_file:
         ax1.set_title("Visualisasi Klaster")
         st.pyplot(fig1)
 
+       # Statistik ringkasan
+        st.subheader("📊 Statistik Rata-rata per Klaster")
+        st.dataframe(df.groupby('Cluster')[selected_cols].mean().round(2))
+        if len(selected_cols) >= 2:
+        # Standarisasi data
+        data_scaled = StandardScaler().fit_transform(df[selected_cols].dropna())
+        clustering_data = df[selected_cols].dropna().copy()
+    
+        # Jalankan KMeans
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        labels = kmeans.fit_predict(data_scaled)
+    
+        # Gabungkan kembali ke df asli
+        df.loc[clustering_data.index, 'Cluster'] = labels
+        df['Cluster'] = df['Cluster'].astype(int)
+    
+        # Visualisasi scatter plot klaster
+        st.subheader("📍 Visualisasi Klaster (2D Scatterplot)")
+        fig1, ax1 = plt.subplots()
+        sns.scatterplot(data=df, x=selected_cols[0], y=selected_cols[1], hue='Cluster', palette='Set1', ax=ax1)
+        ax1.set_xlabel(selected_cols[0])
+        ax1.set_ylabel(selected_cols[1])
+        ax1.set_title("Visualisasi Klaster")
+        st.pyplot(fig1)
+    
         # Statistik ringkasan
         st.subheader("📊 Statistik Rata-rata per Klaster")
-        st.dataframe(df.groupby('Cluster')[selecte]()
+        st.dataframe(df.groupby('Cluster')[selected_cols].mean().round(2))
+    
+        # Visualisasi tren waktu (jika ada kolom tanggal)
+        if 'date' in df.columns:
+            try:
+                df['date'] = pd.to_datetime(df['date'])
+                st.subheader("📈 Tren Waktu Kasus Positif per Klaster")
+    
+                fig2, ax2 = plt.subplots(figsize=(10, 5))
+                for cluster in sorted(df['Cluster'].unique()):
+                    df_cluster = df[df['Cluster'] == cluster].sort_values(by='date')
+                    ax2.plot(df_cluster['date'], df_cluster[selected_cols[0]], label=f'Klaster {cluster}')
+    
+                ax2.set_xlabel("Tanggal")
+                ax2.set_ylabel(selected_cols[0])
+                ax2.set_title(f"Tren Harian {selected_cols[0]} per Klaster")
+                ax2.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+                ax2.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+                ax2.tick_params(axis='x', rotation=45)
+                ax2.legend(title="Klaster")
+                st.pyplot(fig2)
+            except Exception as e:
+                st.warning(f"Kolom 'date' tidak bisa diubah ke format tanggal: {e}")
+    else:
+        st.warning("📌 Pilih setidaknya 2 kolom numerik untuk melakukan clustering.")
+
+
 
